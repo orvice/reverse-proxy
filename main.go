@@ -15,6 +15,17 @@ func main() {
 	}
 
 	proxy := httputil.NewSingleHostReverseProxy(remote)
+	proxy.Director = func(req *http.Request) {
+		req.Host = remote.Host
+		req.URL.Host = remote.Host
+		req.Header.Set("Host", remote.Host)
+
+		if _, ok := req.Header["User-Agent"]; !ok {
+			// explicitly disable User-Agent so it's not set to default value
+			req.Header.Set("User-Agent", "")
+		}
+	}
+
 	http.HandleFunc("/", handler(proxy, remote))
 	err = http.ListenAndServe(":8080", nil)
 	if err != nil {
