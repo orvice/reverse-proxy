@@ -1,10 +1,10 @@
 package main
 
-import(
+import (
 	"log"
-	"net/url"
 	"net/http"
 	"net/http/httputil"
+	"net/url"
 	"os"
 )
 
@@ -15,17 +15,17 @@ func main() {
 	}
 
 	proxy := httputil.NewSingleHostReverseProxy(remote)
-	http.HandleFunc("/", handler(proxy))
+	http.HandleFunc("/", handler(proxy, remote))
 	err = http.ListenAndServe(":8080", nil)
 	if err != nil {
 		panic(err)
 	}
 }
 
-func handler(p *httputil.ReverseProxy) func(http.ResponseWriter, *http.Request) {
+func handler(p *httputil.ReverseProxy, u *url.URL) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Println(r.URL)
-		w.Header().Set("X-Ben", "Rad")
+		w.Header().Set("Host", u.Host)
 		p.ServeHTTP(w, r)
 	}
 }
