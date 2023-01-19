@@ -12,7 +12,7 @@ COPY . .
 RUN make build
 
 
-FROM orvice/go-runtime
+FROM ghcr.io/orvice/go-runtime:master
 
 ENV PROJECT_NAME /reverse-proxy
 
