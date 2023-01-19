@@ -1,11 +1,12 @@
 package main
 
 import (
-	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"os"
+
+	"golang.org/x/exp/slog"
 )
 
 func main() {
@@ -26,6 +27,12 @@ func main() {
 			req.Header.Set("User-Agent", "")
 		}
 	}
+	proxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err error) {
+		slog.Error("proxy error",
+			err,
+			"url", r.URL.String())
+
+	}
 
 	http.HandleFunc("/", handler(proxy, remote))
 	err = http.ListenAndServe(":8080", nil)
@@ -36,7 +43,8 @@ func main() {
 
 func handler(p *httputil.ReverseProxy, u *url.URL) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log.Println(r.URL)
+		slog.Info("proxy url",
+			"url", r.URL.String())
 		w.Header().Set("Host", u.Host)
 		p.ServeHTTP(w, r)
 	}
