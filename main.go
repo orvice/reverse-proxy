@@ -15,6 +15,8 @@ func main() {
 		panic(err)
 	}
 
+	slog.Info("proxy info", "dst.host", remote.Host)
+
 	proxy := httputil.NewSingleHostReverseProxy(remote)
 	proxy.Director = func(req *http.Request) {
 		req.URL.Scheme = remote.Scheme
